@@ -1298,6 +1298,11 @@ void CaptureWidget::setState(CaptureToolButton* b)
         return;
     }
 
+    // Save current tool size before switching tools
+    if (m_activeButton && activeButtonToolType() != CaptureTool::NONE) {
+        m_config.setToolSize(activeButtonToolType(), m_context.toolSize);
+    }
+
     commitCurrentTool();
     if (m_toolWidget && m_activeTool) {
         if (m_activeTool->isValid()) {
@@ -1410,7 +1415,6 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
  */
 void CaptureWidget::onToolSizeChanged(int t)
 {
-
     m_context.toolSize = t;
     CaptureTool* tool = activeButtonTool();
     if (tool && tool->showMousePreview()) {
@@ -1435,6 +1439,9 @@ void CaptureWidget::onToolSizeChanged(int t)
         drawToolsData();
         updateTool(toolItem);
     }
+
+    // Save tool size to config immediately
+    onToolSizeSettled(m_context.toolSize);
 
     // Force a repaint to prevent artifacting
     this->repaint();
